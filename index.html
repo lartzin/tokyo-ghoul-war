@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tokyo Ghoul WAR</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #000;
+    }
+    canvas {
+      display: block;
+      margin: 0 auto;
+      background: url('https://i.imgur.com/jWNOa6A.jpg') no-repeat center center;
+      background-size: cover;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas" width="800" height="450"></canvas>
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const kaneki = {
+      x: 100,
+      y: 300,
+      width: 48,
+      height: 48,
+      color: "white",
+      speed: 4,
+      attacking: false,
+      image: new Image(),
+    };
+    kaneki.image.src = "https://i.imgur.com/H1ikPL4.png"; // Kaneki sprite
+
+    const enemy = {
+      x: 600,
+      y: 300,
+      width: 48,
+      height: 48,
+      color: "red",
+      health: 100,
+    };
+
+    const keys = {};
+
+    window.addEventListener("keydown", (e) => {
+      keys[e.key] = true;
+      if (e.key === "z") kaneki.attacking = true;
+    });
+    window.addEventListener("keyup", (e) => {
+      keys[e.key] = false;
+      if (e.key === "z") kaneki.attacking = false;
+    });
+
+    function update() {
+      if (keys["ArrowLeft"]) kaneki.x -= kaneki.speed;
+      if (keys["ArrowRight"]) kaneki.x += kaneki.speed;
+
+      // attack logic
+      if (kaneki.attacking &&
+          kaneki.x + kaneki.width > enemy.x &&
+          kaneki.x < enemy.x + enemy.width) {
+        enemy.health -= 0.5;
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw Kaneki
+      ctx.drawImage(kaneki.image, kaneki.x, kaneki.y, kaneki.width, kaneki.height);
+
+      // Draw enemy
+      ctx.fillStyle = enemy.color;
+      ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+
+      // Draw HUD
+      ctx.fillStyle = "white";
+      ctx.fillText("Enemy HP: " + Math.max(0, Math.floor(enemy.health)), 600, 50);
+    }
+
+    function gameLoop() {
+      update();
+      draw();
+      requestAnimationFrame(gameLoop);
+    }
+
+    kaneki.image.onload = () => {
+      gameLoop();
+    };
+  </script>
+</body>
+</html>
